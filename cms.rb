@@ -7,16 +7,15 @@ before do
 end
 
 get '/' do
-  @root_dir = File.expand_path('..', __FILE__)
   @files = Dir['*', base: "#{@root_dir}/public/data"]
   erb :index, layout: :layout
 end
 
-get '/:file' do
-  filename = params[:file]
-  # @file = File.read("/data/#{filename}")
+get '/:filename' do
+  filename = params[:filename]
+  @file = File.read("#{@root_dir}/public/data/#{filename}")
 
-  @file = File.readlines("#{@root_dir}/public/data/#{filename}")
-
-  erb :file, layout: :layout
+  headers['Content-Type'] = 'text/plain'
+  @file
+  # erb :file, layout: :layout
 end
