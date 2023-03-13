@@ -1,12 +1,7 @@
-<!doctype html>
-<html>
-  <body>
-    <ul>
-      <% @files.each do |file| %>
-        <li>
-          <a href="<%= "#{@root_dir}/public/data/#{file}" %>" ><%= file %></a>
-        </li>
-      <% end %>
-    </ul>
-  </body>
-</html>
+<ul>
+  <% @files.each do |file| %>
+    <li>
+      <a href="<%= file %>" ><%= file %></a>
+    </li>
+  <% end %>
+</ul>
