@@ -22,7 +22,9 @@ class CMSTest < Minitest::Test
 
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
-    # assert_equal 
+    @files.each do |filename|
+      assert_includes last_response.body, filename
+    end
   end
 
   def test_filename
