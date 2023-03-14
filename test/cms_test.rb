@@ -25,45 +25,7 @@ class CMSTest < Minitest::Test
     # assert_equal 
   end
 
-  def test_filename_1
-    skip
-    get "/about.txt"
-
-      file = File.read("#{@root_dir}/public/data/about.txt")
-
-      assert_equal 200, last_response.status
-      assert_equal 'text/plain', last_response['Content-Type']
-      assert_equal file, last_response.body
-    # end
-  end
-
-  def test_filename_2
-    skip
-    get "/changes.txt"
-
-      file = File.read("#{@root_dir}/public/data/changes.txt")
-
-      assert_equal 200, last_response.status
-      assert_equal 'text/plain', last_response['Content-Type']
-      assert_equal file, last_response.body
-    # end
-  end
-
-  def test_filename_3
-    skip
-    get "/history.txt"
-
-      file = File.read("#{@root_dir}/public/data/history.txt")
-
-      assert_equal 200, last_response.status
-      assert_equal 'text/plain', last_response['Content-Type']
-      assert_equal file, last_response.body
-    # end
-  end
-
   def test_filename
-    # filenames = ['about.txt', 'changes.txt', 'history.txt']
-    # filenames.each do |filename|
     @files.each do |filename|
       get "/#{filename}"
 
