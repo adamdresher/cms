@@ -25,7 +25,6 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, 'about.txt'
     assert_includes last_response.body, 'changes.txt'
     assert_includes last_response.body, 'history.txt'
-    end
   end
 
   def test_viewing_text_file
@@ -33,7 +32,28 @@ class CMSTest < Minitest::Test
 
     assert_equal 200, last_response.status
     assert_equal 'text/plain', last_response['Content-Type']
-    assert_includes 'Ruby 0.95 released'
-    end
+    assert_includes last_response.body, 'Ruby 0.95 released.'
+  end
+
+  def test_nonexistent_file
+    get '/nonexistent_file.txt'
+
+    assert_equal 302, last_response.status
+
+    get last_response['Location']
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'nonexistent_file.txt does not exist.'
+    assert_includes last_response.body, 'about.txt'
+    assert_includes last_response.body, 'changes.txt'
+    assert_includes last_response.body, 'history.txt'
+
+    get '/'
+
+    assert_equal 200, last_response.status
+    assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
+    assert_includes last_response.body, 'about.txt'
+    assert_includes last_response.body, 'changes.txt'
+    assert_includes last_response.body, 'history.txt'
   end
 end

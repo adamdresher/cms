@@ -29,6 +29,7 @@ PLATFORMS
 DEPENDENCIES
   erubis
   minitest
+  rack-test
   sinatra (~> 1.4.7)
   sinatra-contrib
 

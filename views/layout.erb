@@ -2,6 +2,11 @@
 <html>
   <head>
     <title>CMS</title>
+
+    <% if session[:error] %>
+      <%= session.delete(:error) %>
+    <% end %>
+
   </head>
   <body>
     <%= yield %>
