@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'sinatra/reloader'
 require 'tilt/erubis'
+require 'redcarpet'
 
 configure do
   enable :sessions
@@ -10,6 +11,7 @@ end
 before do
   @root_path = File.expand_path('..', __FILE__)
   @files = Dir['*', base: "#{@root_path}/public/data"]
+  @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
 end
 
 get '/' do
@@ -21,9 +23,12 @@ get '/:filename' do
   
   if @files.include? filename
     @file = File.read("#{@root_path}/public/data/#{filename}")
-
-    headers['Content-Type'] = 'text/plain'
-    @file
+    if File.extname("#{@root_path}/public/data/#{filename}") == '.md'
+      @file = @markdown.render(@file)
+    else
+      headers['Content-Type'] = 'text/plain'
+      @file
+    end
   else
     session[:error] = "#{filename} does not exist."
     redirect '/'
