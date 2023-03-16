@@ -8,8 +8,8 @@ configure do
 end
 
 before do
-  @root_dir = File.expand_path('..', __FILE__)
-  @files = Dir['*', base: "#{@root_dir}/public/data"]
+  @root_path = File.expand_path('..', __FILE__)
+  @files = Dir['*', base: "#{@root_path}/public/data"]
 end
 
 get '/' do
@@ -20,7 +20,7 @@ get '/:filename' do
   filename = params[:filename]
   
   if @files.include? filename
-    @file = File.read("#{@root_dir}/public/data/#{filename}")
+    @file = File.read("#{@root_path}/public/data/#{filename}")
 
     headers['Content-Type'] = 'text/plain'
     @file
