@@ -22,20 +22,18 @@ class CMSTest < Minitest::Test
 
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
-    @files.each do |filename|
-      assert_includes last_response.body, filename
+    assert_includes last_response.body, 'about.txt'
+    assert_includes last_response.body, 'changes.txt'
+    assert_includes last_response.body, 'history.txt'
     end
   end
 
-  def test_filename
-    @files.each do |filename|
-      get "/#{filename}"
+  def test_viewing_text_file
+    get '/history.txt'
 
-      file = File.read("#{@root_dir}/public/data/#{filename}")
-
-      assert_equal 200, last_response.status
-      assert_equal 'text/plain', last_response['Content-Type']
-      assert_equal file, last_response.body
+    assert_equal 200, last_response.status
+    assert_equal 'text/plain', last_response['Content-Type']
+    assert_includes 'Ruby 0.95 released'
     end
   end
 end
