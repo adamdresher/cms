@@ -8,11 +8,6 @@ require_relative '../cms'
 class CMSTest < Minitest::Test
   include Rack::Test::Methods
 
-  def setup
-    @root_dir = File.expand_path('../..', __FILE__)
-    @files = Dir['*', base: "#{@root_dir}/public/data"]
-  end
-
   def app
     Sinatra::Application
   end
