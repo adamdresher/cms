@@ -4,6 +4,10 @@
     <title>CMS</title>
     <%= session.delete(:edit_success) if session[:edit_success]  %>
     <%= session.delete(:error) if session[:error] %>
+
+    <style>
+      textarea { resize: none }
+    </style>
   </head>
   <body>
     <%= yield %>
