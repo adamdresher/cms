@@ -1,0 +1,8 @@
+<form action="/<%= @file %>/edit" method="post">
+  <textarea name="edited_text" cols="100" rows="30">
+    <% @file.each do |line| %>
+<%= line %>
+    <% end %>
+  </textarea>
+  <button>Submit changes</button>
+</form>
