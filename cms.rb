@@ -44,7 +44,7 @@ end
 get '/:filename/edit' do
   @filename = params[:filename]
   file_path = "#{root_path}/public/data/#{@filename}"
-  @file = File.readlines(file_path)
+  @file = File.read(file_path)
 
   erb :edit_file, layout: :layout
 end
