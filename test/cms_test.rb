@@ -88,6 +88,7 @@ class CMSTest < Minitest::Test
     get '/quotes_dup.md'
 
     assert_equal 200, last_response.status
+    refute_includes last_response.body, 'quotes_dup.md has been updated.'
     assert_includes last_response.body, 'just one more'
   end
 end
