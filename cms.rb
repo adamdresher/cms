@@ -20,15 +20,27 @@ end
 
 get '/:filename' do
   filename = params[:filename]
+  file_path = "#{@root_path}/public/data/#{filename}"
   
   if @files.include? filename
-    @file = File.read("#{@root_path}/public/data/#{filename}")
-    if File.extname("#{@root_path}/public/data/#{filename}") == '.md'
+
+    @file = File.read(file_path)
+
+    case File.extname(file_path)
+    when '.md'
       @file = @markdown.render(@file)
-    else
+    when '.txt'
       headers['Content-Type'] = 'text/plain'
       @file
     end
+
+  #  if File.extname("#{@root_path}/public/data/#{filename}") == '.md'
+  #    @file = @markdown.render(@file)
+  #  else
+  #    headers['Content-Type'] = 'text/plain'
+  #    @file
+  #  end
+
   else
     session[:error] = "#{filename} does not exist."
     redirect '/'
