@@ -14,26 +14,6 @@ before do
   @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
 end
 
-# def render_file(file_path)
-#   file = File.read(file_path)
-# 
-#   case File.extname(file_path)
-#   when '.md'
-#     @markdown.render(file)
-#   when '.txt'
-#     file
-#   end
-# end
-# 
-# def set_content_type(file_path)
-#   case File.extname(file_path)
-#   when '.md'
-#     'text/html;charset=utf-8'
-#   when '.txt'
-#     'text/plain'
-#   end
-# end
-
 def render_md(file_path)
   @markdown.render(File.read(file_path))
 end
@@ -47,9 +27,6 @@ get '/:filename' do
   file_path = "#{@root_path}/public/data/#{filename}"
   
   if @files.include? filename
-    # headers['Content-Type'] = set_content_type(file_path)
-    # @file = render_file(file_path)
-
     case File.extname(file_path)
     when '.md'
       render_md(file_path)
