@@ -17,6 +17,7 @@ class CMSTest < Minitest::Test
 
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
+    assert_includes last_response.body, 'quotes.md'
     assert_includes last_response.body, 'about.txt'
     assert_includes last_response.body, 'changes.txt'
     assert_includes last_response.body, 'history.txt'
@@ -40,8 +41,6 @@ class CMSTest < Minitest::Test
     assert_equal 200, last_response.status
     assert_includes last_response.body, 'nonexistent_file.txt does not exist.'
     assert_includes last_response.body, 'about.txt'
-    assert_includes last_response.body, 'changes.txt'
-    assert_includes last_response.body, 'history.txt'
 
     get '/'
 
@@ -49,7 +48,5 @@ class CMSTest < Minitest::Test
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
     refute_includes last_response.body, 'nonexistent_file.txt does not exist.'
     assert_includes last_response.body, 'about.txt'
-    assert_includes last_response.body, 'changes.txt'
-    assert_includes last_response.body, 'history.txt'
   end
 end
