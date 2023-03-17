@@ -8,10 +8,12 @@ configure do
   set :session_secret, 'secret'
 end
 
-root_path = File.expand_path('..', __FILE__)
-
-before do
-  @files = Dir['*', base: "#{root_path}/public/data"]
+def data_path
+  if ENV['RACK_ENV'] == 'test'
+    File.expand_path('../test/data', __FILE__)
+  else
+    File.expand_path('../public/data', __FILE__)
+  end
 end
 
 def render_md(file_path)
@@ -20,12 +22,15 @@ def render_md(file_path)
 end
 
 get '/' do
+  @files = Dir['*', base: data_path]
+
   erb :index, layout: :layout
 end
 
 get '/:filename' do
   filename = params[:filename]
-  file_path = "#{root_path}/public/data/#{filename}"
+  file_path = File.join(data_path, filename)
+  @files = Dir['*', base: data_path]
   
   if @files.include? filename
     case File.extname(file_path)
@@ -43,7 +48,7 @@ end
 
 get '/:filename/edit' do
   @filename = params[:filename]
-  @file_path = "#{root_path}/public/data/#{@filename}"
+  @file_path = File.join(data_path, @filename)
   @file = File.read(@file_path)
 
   erb :edit_file, layout: :layout
@@ -51,7 +56,7 @@ end
 
 post '/:filename/edit' do
   @filename = params[:filename]
-  @file_path = "#{root_path}/public/data/#{@filename}"
+  @file_path = File.join(data_path, @filename)
   edited_content = params[:edited_content]
 
   File.write(@file_path, edited_content)
