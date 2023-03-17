@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ENV['RACK_ENV'] = 'test'
 
 require 'minitest/autorun'
@@ -21,7 +23,7 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, 'about.txt'
     assert_includes last_response.body, 'changes.txt'
     assert_includes last_response.body, 'history.txt'
-    
+
     # assert_includes edit links
   end
 
@@ -61,28 +63,31 @@ class CMSTest < Minitest::Test
     refute_includes last_response.body, 'nonexistent_file.txt does not exist.'
     assert_includes last_response.body, 'about.txt'
   end
-end
 
-def test_edit_file_form
-  skip
+  def test_edit_file_form
+    get '/quotes.md/edit'
 
-  get '/quotes.md/edit'
+    assert_equal 200, last_response.status
+    assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
+    assert_includes last_response.body, "<textarea"
+    assert_includes last_response.body, %q[<button type="submit"]
+  end
 
-  assert_equal 200, last_response.status
-  assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
-  assert_includes last_response.body, '"We are what we repeatedly do.  Excellence, then, is not an act, but a habit"'
-end
+  def test_edit_file
+    one_more_quote = "*\"I'm like the drunk in the bar who wants just one more for the road.\"*<br>- Archie Moore"
+    post '/quotes_dup.md/edit', edited_content: one_more_quote
 
-def test_edit_file
-  skip
+    assert_equal 302, last_response.status
 
-  post '/quotes.md/edit'
+    get last_response['Location']
 
-  assert_equal 302, last_response.status
-  
-  get last_response['Location']
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'quotes_dup.md has been updated.'
+    assert_includes last_response.body, 'about.txt'
 
-  assert_equal 200, last_response.status
-  assert_includes last_response.body, 'quotes.md has been updated.'
-  assert_includes last_response.body, 'about.txt'
+    get '/quotes_dup.md'
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'just one more'
+  end
 end
