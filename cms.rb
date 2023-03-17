@@ -14,6 +14,30 @@ before do
   @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
 end
 
+# def render_file(file_path)
+#   file = File.read(file_path)
+# 
+#   case File.extname(file_path)
+#   when '.md'
+#     @markdown.render(file)
+#   when '.txt'
+#     file
+#   end
+# end
+# 
+# def set_content_type(file_path)
+#   case File.extname(file_path)
+#   when '.md'
+#     'text/html;charset=utf-8'
+#   when '.txt'
+#     'text/plain'
+#   end
+# end
+
+def render_md(file_path)
+  @markdown.render(File.read(file_path))
+end
+
 get '/' do
   erb :index, layout: :layout
 end
@@ -23,27 +47,18 @@ get '/:filename' do
   file_path = "#{@root_path}/public/data/#{filename}"
   
   if @files.include? filename
-
-    @file = File.read(file_path)
+    # headers['Content-Type'] = set_content_type(file_path)
+    # @file = render_file(file_path)
 
     case File.extname(file_path)
     when '.md'
-      @file = @markdown.render(@file)
+      render_md(file_path)
     when '.txt'
       headers['Content-Type'] = 'text/plain'
-      @file
+      File.read(file_path)
     end
-
-  #  if File.extname("#{@root_path}/public/data/#{filename}") == '.md'
-  #    @file = @markdown.render(@file)
-  #  else
-  #    headers['Content-Type'] = 'text/plain'
-  #    @file
-  #  end
-
   else
     session[:error] = "#{filename} does not exist."
     redirect '/'
   end
-  # erb :file, layout: :layout
 end
