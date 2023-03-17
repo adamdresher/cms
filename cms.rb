@@ -21,6 +21,17 @@ def render_md(file_path)
   @markdown.render(File.read(file_path))
 end
 
+
+def load_file_content(file_path)
+  case File.extname(file_path)
+  when '.md'
+    render_md(file_path)
+  when '.txt'
+    headers['Content-Type'] = 'text/plain'
+    File.read(file_path)
+  end
+end
+
 get '/' do
   @files = Dir['*', base: data_path]
 
@@ -30,16 +41,9 @@ end
 get '/:filename' do
   filename = params[:filename]
   file_path = File.join(data_path, filename)
-  @files = Dir['*', base: data_path]
   
-  if @files.include? filename
-    case File.extname(file_path)
-    when '.md'
-      render_md(file_path)
-    when '.txt'
-      headers['Content-Type'] = 'text/plain'
-      File.read(file_path)
-    end
+  if File.exists?(file_path)
+    load_file_content(file_path)
   else
     session[:error] = "#{filename} does not exist."
     redirect '/'
@@ -55,12 +59,12 @@ get '/:filename/edit' do
 end
 
 post '/:filename/edit' do
-  @filename = params[:filename]
-  @file_path = File.join(data_path, @filename)
+  filename = params[:filename]
+  file_path = File.join(data_path, filename)
   edited_content = params[:edited_content]
 
-  File.write(@file_path, edited_content)
-  session[:edit_success] = "#{@filename} has been updated."
+  File.write(file_path, edited_content)
+  session[:edit_success] = "#{filename} has been updated."
 
   redirect '/'
 end
