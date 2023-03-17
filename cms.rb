@@ -42,8 +42,8 @@ get '/:filename' do
 end
 
 get '/:filename/edit' do
-  filename = params[:filename]
-  file_path = "#{root_path}/public/data/#{filename}"
+  @filename = params[:filename]
+  file_path = "#{root_path}/public/data/#{@filename}"
   @file = File.readlines(file_path)
 
   erb :edit_file, layout: :layout
