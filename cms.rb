@@ -8,13 +8,14 @@ configure do
   set :session_secret, 'secret'
 end
 
+root_path = File.expand_path('..', __FILE__)
+
 before do
-  @root_path = File.expand_path('..', __FILE__)
-  @files = Dir['*', base: "#{@root_path}/public/data"]
-  @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+  @files = Dir['*', base: "#{root_path}/public/data"]
 end
 
 def render_md(file_path)
+  @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
   @markdown.render(File.read(file_path))
 end
 
@@ -24,7 +25,7 @@ end
 
 get '/:filename' do
   filename = params[:filename]
-  file_path = "#{@root_path}/public/data/#{filename}"
+  file_path = "#{root_path}/public/data/#{filename}"
   
   if @files.include? filename
     case File.extname(file_path)
