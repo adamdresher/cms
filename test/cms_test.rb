@@ -31,6 +31,14 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, 'Ruby 0.95 released.'
   end
 
+  def test_viewing_md_file
+    get '/quotes.md'
+
+    assert_equal 200, last_response.status
+    assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
+    assert_includes last_response.body, 'Your past does not '
+  end
+
   def test_nonexistent_file
     get '/nonexistent_file.txt'
 
