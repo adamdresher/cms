@@ -4,10 +4,10 @@
     <title>CMS</title>
     <link href="/stylesheets/cms.css" rel="stylesheet" type="text/css">
 
-    <div class='messages'>
-      <%= session.delete(:edit_success) if session[:edit_success] %>
-      <%= session.delete(:error) if session[:error] %>
-    </div>
+    <% if session[:message] %>
+      <p class='message'><%= session.delete(:message) %></p>
+    <% end %>
+
   </head>
   <body>
     <%= yield %>
