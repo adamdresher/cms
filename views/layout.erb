@@ -1,13 +1,18 @@
 <!doctype html>
 <html>
   <head>
-    <title>CMS</title>
-    <%= session.delete(:edit_success) if session[:edit_success]  %>
-    <%= session.delete(:error) if session[:error] %>
-
     <style>
+      .messages {
+        background-color: yellow;
+      },
       textarea { resize: none }
     </style>
+
+    <title>CMS</title>
+    <div class='messages'>
+      <%= session.delete(:edit_success) if session[:edit_success]  %>
+      <%= session.delete(:error) if session[:error] %>
+    </div>
   </head>
   <body>
     <%= yield %>
