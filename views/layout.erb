@@ -1,16 +1,11 @@
 <!doctype html>
 <html>
   <head>
-    <style>
-      .messages {
-        background-color: yellow;
-      },
-      textarea { resize: none }
-    </style>
-
     <title>CMS</title>
+    <link href="/stylesheets/cms.css" rel="stylesheet" type="text/css">
+
     <div class='messages'>
-      <%= session.delete(:edit_success) if session[:edit_success]  %>
+      <%= session.delete(:edit_success) if session[:edit_success] %>
       <%= session.delete(:error) if session[:error] %>
     </div>
   </head>

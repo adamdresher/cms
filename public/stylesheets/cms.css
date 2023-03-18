@@ -1,0 +1,13 @@
+body {
+  padding: 1em;
+  font-family: sans-serif;
+}
+
+textarea {
+  resize: none;
+}
+
+.messages {
+  padding: 10px;
+  background-color: yellow;
+}
