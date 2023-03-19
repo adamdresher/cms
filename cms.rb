@@ -38,6 +38,23 @@ get '/' do
   erb :index, layout: :layout
 end
 
+get '/new_doc' do
+  erb :new_doc, layout: :layout
+end
+
+post '/new_doc' do
+  filename = params[:filename]
+
+  if filename.strip.empty?
+    session[:message] = "A name is required."
+    redirect '/new_doc'
+  else
+    File.new(File.join(data_path, filename), 'w')
+    session[:message] = "#{filename} was created."
+    redirect '/'
+  end
+end
+
 get '/:filename' do
   filename = params[:filename]
   file_path = File.join(data_path, filename)
