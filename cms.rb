@@ -3,6 +3,7 @@ require 'sinatra/reloader'
 require 'tilt/erubis'
 require 'redcarpet'
 
+$EXTENSIONS = ['.txt', '.md']
 configure do
   enable :sessions
   set :session_secret, 'secret'
@@ -22,6 +23,9 @@ def render_md(file_path)
   @markdown.render(File.read(file_path))
 end
 
+def file_extension_exists?(filename)
+  $EXTENSIONS.any? { |ext| File.extname(filename) == ext }
+end
 
 def load_file_content(file_path)
   case File.extname(file_path)
@@ -44,19 +48,20 @@ get '/new_doc' do
 end
 
 post '/new_doc' do
-
   filename = params[:filename]
 
-
-  if filename.strip.empty?
-      session[:message] = "A name is required."
-    status 422
-    erb :new_doc, layout: :layout
-  else
+  if file_extension_exists?(filename)
     File.new(File.join(data_path, filename), 'w')
     session[:message] = "#{filename} was created."
     redirect '/'
+  elsif filename.strip.empty?
+      session[:message] = "A name is required."
+  else
+    session[:message] = "The name must end with a valid file extension ('.md' or '.txt')."
   end
+
+  status 422
+  erb :new_doc, layout: :layout
 end
 
 get '/:filename' do
