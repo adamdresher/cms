@@ -119,45 +119,62 @@ class CMSTest < Minitest::Test
     assert_equal 200, last_response.status
     assert_includes last_response.body, 'new content'
   end
-end
 
-def test_viewing_new_file_form
-  get '/new_doc'
+  def test_viewing_new_file_form
+    get '/new_doc'
 
-  assert_equal 200, last_response.status
-  assert_includes 'Add a new document', last_response.body
-  assert_includes last_response.body, '<input'
-  assert_includes last_response.body, %q(<button form="submit")
-end
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'Add a new document'
+    assert_includes last_response.body, '<input'
+    assert_includes last_response.body, %q(<button form="submit")
+  end
 
-def test_submiting_new_file
-  post '/new_doc', filename: 'new_file.txt'
+  def test_submiting_new_file
+    post '/new_doc', filename: 'new_file.txt'
 
-  assert_equal 303, last_response.status
+    assert_equal 302, last_response.status
 
-  get last_response['Location']
+    get last_response['Location']
 
-  assert_equal 200, last_response.status
-  assert_includes last_response.body, 'new_file.txt has been created.'
-  assert_includes last_response.body, %q(new_file.txt</a>)
-  assert_includes last_response.body, 'quotes.md'
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'new_file.txt was created.'
+    assert_includes last_response.body, %q(new_file.txt</a>)
 
-  get '/'
+    get '/'
 
-  refute_includes last_response.body, 'new_file.txt has been created.'
-  assert_includes last_response.body, %q(new_file.txt</a>)
-end
+    refute_includes last_response.body, 'new_file.txt has been created.'
+    assert_includes last_response.body, %q(new_file.txt</a>)
+  end
 
-def test_submitting_new_file_without_name
-  post '/new_doc', filename: ''
+  def test_submitting_new_file_without_name
+    post '/new_doc', filename: ''
 
-  assert_equal 422, last_response.status
-  assert_includes last_response.body, 'A name is required.'
-end
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, 'A name is required.'
+  end
 
-def test_submitting_new_file_without_valid_extension
-  post '/new_doc', filename: 'invalid.doc'
+  def test_submitting_new_file_without_valid_extension
+    post '/new_doc', filename: 'invalid.doc'
 
-  assert_equal 422, last_response.status
-  assert_includes last_response.body, "The name must end with a valid file extension ('.md' or '.txt')."
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "The name must end with a valid file extension ('.md' or '.txt')."
+  end
+
+  def test_deleting_file
+    create_document 'temp.txt'
+
+    post '/temp.txt/delete'
+
+    assert_equal 302, last_response.status
+
+    get last_response['Location']
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'temp.txt has been deleted.'
+
+    get '/'
+
+    assert_equal 200, last_response.status
+    refute_includes last_response.body, 'temp.txt'
+  end
 end
