@@ -1,7 +1,7 @@
-<form action="/<%= @filename %>/edit" method="post">
-  <textarea name="edited_content" dirname="<%= @file_path %>.dir" cols="100" rows="30"><%= @file %></textarea>
-    <button type="submit" id="edit">Submit changes</button>
-</form>
-<form action="/" method="get">
-  <button type="submit" id="cancel">Cancel</button>
-</form>
+<textarea name="edited_content" form="content" dirname="<%= @file_path %>.dir" cols="100" rows="30"><%= @file %></textarea>
+
+<button form="content" type="submit" id="edit">Submit changes</button>
+<button form="cancel" type="submit">Cancel</button>
+
+<form id="content" action="/<%= @filename %>/edit" method="post"></form>
+<form id="cancel" action="/" method="get"></form>
