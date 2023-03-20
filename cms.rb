@@ -6,6 +6,7 @@ require 'redcarpet'
 configure do
   enable :sessions
   set :session_secret, 'secret'
+  set :show_exceptions, :after_handler
 end
 
 def data_path
@@ -43,11 +44,14 @@ get '/new_doc' do
 end
 
 post '/new_doc' do
+
   filename = params[:filename]
 
+
   if filename.strip.empty?
-    session[:message] = "A name is required."
-    redirect '/new_doc'
+      session[:message] = "A name is required."
+    status 422
+    erb :new_doc, layout: :layout
   else
     File.new(File.join(data_path, filename), 'w')
     session[:message] = "#{filename} was created."
@@ -85,3 +89,12 @@ post '/:filename/edit' do
 
   redirect '/'
 end
+
+# not_found do
+#   redirect '/'
+# end
+
+# error 422 do
+#   # '422 boom!'
+#   redirect '/'
+# end
