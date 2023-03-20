@@ -100,7 +100,7 @@ class CMSTest < Minitest::Test
 
     post '/quotes.md/edit', edited_content: 'new content'
 
-    assert_equal 303, last_response.status
+    assert_equal 302, last_response.status
 
     get last_response['Location']
 
@@ -132,6 +132,7 @@ end
 
 def test_submiting_new_file
   post '/new_doc', filename: 'new_file.txt'
+
   assert_equal 303, last_response.status
 
   get last_response['Location']
@@ -142,16 +143,21 @@ def test_submiting_new_file
   assert_includes last_response.body, 'quotes.md'
 
   get '/'
+
   refute_includes last_response.body, 'new_file.txt has been created.'
   assert_includes last_response.body, %q(new_file.txt</a>)
 end
 
 def test_submitting_new_file_without_name
   post '/new_doc', filename: ''
+
   assert_equal 422, last_response.status
   assert_includes last_response.body, 'A name is required.'
 end
 
 def test_submitting_new_file_without_valid_extension
-  skip
+  post '/new_doc', filename: 'invalid.doc'
+
+  assert_equal 422, last_response.status
+  assert_includes last_response.body, "The name must end with a valid file extension ('.md' or '.txt')."
 end
