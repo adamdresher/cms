@@ -11,3 +11,7 @@ textarea {
   padding: 10px;
   background-color: yellow;
 }
+
+form.inline {
+  display: inline;
+}
