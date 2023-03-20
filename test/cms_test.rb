@@ -8,12 +8,6 @@ require 'fileutils'
 
 require_relative '../cms'
 
-def create_document(name, content='')
-  File.open(File.join(data_path, name), 'w') do |file|
-    file.write(content)
-  end
-end
-
 class CMSTest < Minitest::Test
   include Rack::Test::Methods
 
@@ -23,6 +17,12 @@ class CMSTest < Minitest::Test
 
   def teardown
     FileUtils.rm_rf(data_path)
+  end
+
+  def create_document(name, content='')
+    File.open(File.join(data_path, name), 'w') do |file|
+      file.write(content)
+    end
   end
 
   def app
@@ -61,7 +61,7 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, 'We are what we repeatedly do.'
   end
 
-  def test_nonexistent_file
+  def test_viewing_nonexistent_file
     create_document 'about.txt'
 
     get '/nonexistent_file.txt'
@@ -83,7 +83,7 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, 'about.txt'
   end
 
-  def test_edit_file_form
+  def test_editing_file_form
     create_document 'quotes.md'
 
     get '/quotes.md/edit'
@@ -91,22 +91,22 @@ class CMSTest < Minitest::Test
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
     assert_includes last_response.body, "<textarea"
-    assert_includes last_response.body, %q[<button type="submit"]
+    assert_includes last_response.body, %Q(<button form="content" type="submit")
   end
 
-  def test_edit_file
+  def test_editing_file_submit
     create_document 'quotes.md'
     create_document 'about.txt'
 
     post '/quotes.md/edit', edited_content: 'new content'
 
-    assert_equal 302, last_response.status
+    assert_equal 303, last_response.status
 
     get last_response['Location']
 
     assert_equal 200, last_response.status
     assert_includes last_response.body, 'quotes.md has been updated.'
-    assert_includes last_response.body, 'quotes.md'
+    assert_includes last_response.body, %q(quotes.md</a>)
     assert_includes last_response.body, 'about.txt'
 
     get '/'
@@ -119,4 +119,39 @@ class CMSTest < Minitest::Test
     assert_equal 200, last_response.status
     assert_includes last_response.body, 'new content'
   end
+end
+
+def test_viewing_new_file_form
+  get '/new_doc'
+
+  assert_equal 200, last_response.status
+  assert_includes 'Add a new document', last_response.body
+  assert_includes last_response.body, '<input'
+  assert_includes last_response.body, %q(<button form="submit")
+end
+
+def test_submiting_new_file
+  post '/new_doc', filename: 'new_file.txt'
+  assert_equal 303, last_response.status
+
+  get last_response['Location']
+
+  assert_equal 200, last_response.status
+  assert_includes last_response.body, 'new_file.txt has been created.'
+  assert_includes last_response.body, %q(new_file.txt</a>)
+  assert_includes last_response.body, 'quotes.md'
+
+  get '/'
+  refute_includes last_response.body, 'new_file.txt has been created.'
+  assert_includes last_response.body, %q(new_file.txt</a>)
+end
+
+def test_submitting_new_file_without_name
+  post '/new_doc', filename: ''
+  assert_equal 422, last_response.status
+  assert_includes last_response.body, 'A name is required.'
+end
+
+def test_submitting_new_file_without_valid_extension
+  skip
 end
