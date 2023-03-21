@@ -12,6 +12,8 @@ textarea {
   background-color: yellow;
 }
 
-form.inline {
-  display: inline;
-}
+/* Brave does not render this style unless it is included directly in the DOM */
+/* form.inline {
+  display: inline-block;
+} */
+
