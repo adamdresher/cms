@@ -42,14 +42,14 @@ get '/' do
   @user = session[:user]
 
   if @user
-    erb :index, layout: :layout
+    erb :index
   else
     redirect '/users/signin'
   end
 end
 
 get '/new_doc' do
-  erb :new_doc, layout: :layout
+  erb :new_doc
 end
 
 post '/new_doc' do
@@ -66,7 +66,7 @@ post '/new_doc' do
   end
 
   status 422
-  erb :new_doc, layout: :layout
+  erb :new_doc
 end
 
 get '/:filename' do
@@ -86,7 +86,7 @@ get '/:filename/edit' do
   @file_path = File.join(data_path, @filename)
   @file = File.read(@file_path)
 
-  erb :edit_file, layout: :layout
+  erb :edit_file
 end
 
 post '/:filename/edit' do
@@ -109,7 +109,7 @@ post '/:filename/delete' do
 end
 
 get '/users/signin' do
-  erb :signin, layout: :layout
+  erb :signin
 end
 
 post '/users/signin' do
@@ -123,7 +123,7 @@ post '/users/signin' do
   else
     session[:message] = 'Invalid credentials.'
     status 422
-    erb :signin, layout: :layout
+    erb :signin
   end
 end
 
