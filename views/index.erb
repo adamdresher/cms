@@ -1,16 +1,29 @@
-<h2>This is the CMS Index!</h2>
-<ul>
-  <% @files.each do |file| %>
-    <li>
-      <a href="<%= file %>" ><%= file %></a> - 
-      <a href="/<%= file %>/edit">edit</a> - 
-      <form style="display: inline" action="/<%= file %>/delete" method="post">
-        <button type="submit">delete</button>
-      </form>
-    </li>
-  <% end %>
-</ul>
+<div>
+  <h2>This is the CMS Index!</h2>
+  <ul>
+    <% @files.each do |file| %>
+      <li>
+        <a href="<%= file %>" ><%= file %></a> - 
+        <a href="/<%= file %>/edit">edit</a> - 
+        <form style="display: inline" action="/<%= file %>/delete" method="post">
+          <button type="submit">delete</button>
+        </form>
+      </li>
+    <% end %>
+  </ul>
 
-<form action="/new_doc" method="get">
-  <button type="submit">New Document</button>
+  <form action="/new_doc" method="get">
+    <button type="submit">New Document</button>
+  </form>
+</div>
+
+<% if @user %>
+  <div>
+    <br>
+    <em>Signed in as <%= @user %>.</em>
+    <button form="signout" type="submit">Sign Out</button>
+  </div>
+<% end %>
+
+<form id="signout" style="display: inline" action="/users/signout" method="post">
 </form>

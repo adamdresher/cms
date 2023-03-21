@@ -1,0 +1,6 @@
+Username: <input form="signin" name="username" type="text" value="<%= session[:user] || '' %>"></input></br>
+Password: <input form="signin" name="password" type="text"></input></br>
+<button form="signin">Sign In</button>
+
+<form id="signin" action="/users/signin" method="post">
+</form>

@@ -39,8 +39,13 @@ end
 
 get '/' do
   @files = Dir['*', base: data_path]
+  @user = session[:user]
 
-  erb :index, layout: :layout
+  if @user
+    erb :index, layout: :layout
+  else
+    redirect '/users/signin'
+  end
 end
 
 get '/new_doc' do
@@ -101,6 +106,31 @@ post '/:filename/delete' do
 
   session[:message] = "#{filename} has been deleted."
   redirect '/'
+end
+
+get '/users/signin' do
+  erb :signin, layout: :layout
+end
+
+post '/users/signin' do
+  username = params[:username]
+  password = params[:password]
+  session[:user] = username
+
+  if username == 'admin' && password == 'secret'
+    session[:message] = 'Welcome!'
+    redirect '/'
+  else
+    session[:message] = 'Invalid credentials.'
+    status 422
+    erb :signin, layout: :layout
+  end
+end
+
+post '/users/signout' do
+  session.delete(:user)
+  session[:message] = 'You have signed out.'
+  redirect '/users/signin'
 end
 
 # not_found do
