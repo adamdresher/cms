@@ -13,6 +13,8 @@ class CMSTest < Minitest::Test
 
   def setup
     FileUtils.mkdir_p(data_path)
+
+    post '/users/signin', username: 'admin', password: 'secret'
   end
 
   def teardown
@@ -176,5 +178,63 @@ class CMSTest < Minitest::Test
 
     assert_equal 200, last_response.status
     refute_includes last_response.body, 'temp.txt'
+  end
+
+#  def test_view_index_signed_in
+#    skip
+#    create_document 'about.txt'
+#
+#    post '/users/signin', username: 'admin', password: 'secret'
+#
+#    assert_equal 303, last_response.status
+#
+#    get last_response['Location']
+#
+#    assert_equal 200, last_response.status
+#    assert_includes last_response.body, 'about.txt'
+#    assert_includes last_response.body, 'Signed in as admin.'
+#    assert_includes last_response.body, %q(Sign Out</button>)
+#  end
+
+  def test_view_signin_form
+    get '/users/signin'
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'Username'
+    assert_includes last_response.body, %q(Sign In</button>)
+  end
+
+  def test_sign_in_valid
+    post '/users/signin', username: 'admin', password: 'secret'
+
+    assert_equal 302, last_response.status
+
+    get last_response['Location']
+    
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'Welcome!'
+    assert_includes last_response.body, 'Signed in as admin.'
+    assert_includes last_response.body, %q(Sign Out</button>)
+  end
+
+  def test_sign_in_invalid
+    post '/users/signin', username: 'admin', password: 'incorrect'
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, 'Invalid credentials.'
+    assert_includes last_response.body, 'Username'
+    assert_includes last_response.body, %q(Sign In</button>)
+  end
+
+  def test_sign_out
+    post '/users/signout'
+
+    assert_equal 302, last_response.status
+    get last_response['Location']
+    
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'You have signed out.'
+    assert_includes last_response.body, 'Username'
+    assert_includes last_response.body, %q(Sign In</button>)
   end
 end
