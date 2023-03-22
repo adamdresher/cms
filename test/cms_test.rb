@@ -35,11 +35,15 @@ class CMSTest < Minitest::Test
     last_request.env['rack.session']
   end
 
+  def admin_user
+    { 'rack.session' => { user: 'admin' } }
+  end
+
   def test_index
     create_document 'about.txt'
     create_document 'quotes.md'
 
-    get '/', {}, {'rack.session' => { user: 'admin' } }
+    get '/', {}, admin_user
 
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
@@ -70,7 +74,7 @@ class CMSTest < Minitest::Test
   def test_viewing_nonexistent_file
     create_document 'about.txt'
 
-    get '/nonexistent_file.txt', {}, {'rack.session' => { user: 'admin' } }
+    get '/nonexistent_file.txt', {}, admin_user
 
     refute_path_exists File.join(data_path, 'nonexistent_file.txt')
     assert_equal 302, last_response.status
@@ -105,7 +109,7 @@ class CMSTest < Minitest::Test
     create_document 'quotes.md'
     create_document 'about.txt'
 
-    post '/quotes.md/edit', { edited_content: 'new content' }, { 'rack.session' => { user: 'admin' } }
+    post '/quotes.md/edit', { edited_content: 'new content' }, admin_user
 
     assert_equal 302, last_response.status
     assert_equal 'quotes.md has been updated.', session[:message]
@@ -138,7 +142,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_submiting_new_file
-    post '/new_doc', { filename: 'new_file.txt' }, { 'rack.session' => { user: 'admin' } }
+    post '/new_doc', { filename: 'new_file.txt' }, admin_user
 
     assert_equal 302, last_response.status
     assert_equal 'new_file.txt was created.', session[:message]
@@ -172,7 +176,7 @@ class CMSTest < Minitest::Test
   def test_deleting_file
     create_document 'temp.txt'
 
-    post '/temp.txt/delete', {}, { 'rack.session' => { user: 'admin'} }
+    post '/temp.txt/delete', {}, admin_user
 
     assert_equal 302, last_response.status
     assert_equal 'temp.txt has been deleted.', session[:message]
@@ -222,7 +226,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_sign_out
-    get '/', {}, { 'rack.session' => { user: 'admin' } }
+    get '/', {}, admin_user
 
     assert_equal 'admin', session[:user]
 
