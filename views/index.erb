@@ -20,13 +20,14 @@
 
 <% if @user %>
   <div>
-    <br>
     <p class="user_status">
       Signed in as <%= @user %>.
       <button form="signout" type="submit">Sign Out</button>
     </p>
+<% else %>
+      <button form="signin" type="submit">Sign In</button>
   </div>
 <% end %>
 
-<form id="signout" style="display: inline" action="/users/signout" method="post">
-</form>
+<form id="signout" style="display: inline" action="/users/signout" method="post"></form>
+<form id="signin" style="display: inline" action="/users/signin" method="get"></form>

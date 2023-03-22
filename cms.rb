@@ -38,22 +38,30 @@ def load_file_content(file_path)
   end
 end
 
+def invalid_user?
+  session[:user] != 'admin'
+end
+
+def permission_denied
+  session[:message] = "You must be signed in to do that."
+  redirect '/'
+end
+
 get '/' do
   @files = Dir['*', base: data_path]
   @user = session[:user]
 
-  if @user
-    erb :index
-  else
-    redirect '/users/signin'
-  end
+  erb :index
 end
 
 get '/new_doc' do
+  permission_denied if invalid_user?
   erb :new_doc
 end
 
 post '/new_doc' do
+  permission_denied if invalid_user?
+
   filename = params[:filename]
 
   if file_extension_exists?(filename)
@@ -83,6 +91,8 @@ get '/:filename' do
 end
 
 get '/:filename/edit' do
+  permission_denied if invalid_user?
+
   @filename = params[:filename]
   @file_path = File.join(data_path, @filename)
   @file = File.read(@file_path)
@@ -91,6 +101,8 @@ get '/:filename/edit' do
 end
 
 post '/:filename/edit' do
+  permission_denied if invalid_user?
+
   filename = params[:filename]
   file_path = File.join(data_path, filename)
   edited_content = params[:edited_content]
@@ -102,6 +114,8 @@ post '/:filename/edit' do
 end
 
 post '/:filename/delete' do
+  permission_denied if invalid_user?
+
   filename = params[:filename]
   File.delete(File.join(data_path, filename))
 
@@ -130,5 +144,5 @@ end
 post '/users/signout' do
   session.delete(:user)
   session[:message] = 'You have signed out.'
-  redirect '/users/signin'
+  redirect '/'
 end
