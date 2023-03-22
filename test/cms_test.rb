@@ -105,6 +105,15 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, %Q(<button form="content" type="submit")
   end
 
+  def test_editing_file_form_signed_out
+    create_document 'quotes.md'
+
+    get '/quotes.md/edit'
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that.", session[:message]
+  end
+
   def test_editing_file_submit
     create_document 'quotes.md'
     create_document 'about.txt'
@@ -139,6 +148,13 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, 'Add a new document'
     assert_includes last_response.body, '<input'
     assert_includes last_response.body, %q(<button form="submit")
+  end
+
+  def test_viewing_new_file_form_signed_out
+    get '/new_doc'
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that.", session[:message]
   end
 
   def test_submiting_new_file
@@ -190,6 +206,15 @@ class CMSTest < Minitest::Test
 
     assert_equal 200, last_response.status
     refute_includes last_response.body, 'temp.txt'
+  end
+
+  def test_deleting_file_signed_out
+    create_document 'temp.txt'
+
+    post '/temp.txt/delete'
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be signed in to do that.", session[:message]
   end
 
   def test_view_signin_form
