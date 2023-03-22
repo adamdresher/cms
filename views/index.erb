@@ -1,5 +1,10 @@
 <div>
   <h2>This is the CMS Index!</h2>
+
+  <form action="/new_doc" method="get">
+    <button type="submit">New Document</button>
+  </form>
+
   <ul>
     <% @files.each do |file| %>
       <li>
@@ -11,17 +16,15 @@
       </li>
     <% end %>
   </ul>
-
-  <form action="/new_doc" method="get">
-    <button type="submit">New Document</button>
-  </form>
 </div>
 
 <% if @user %>
   <div>
     <br>
-    <em>Signed in as <%= @user %>.</em>
-    <button form="signout" type="submit">Sign Out</button>
+    <p class="user_status">
+      Signed in as <%= @user %>.
+      <button form="signout" type="submit">Sign Out</button>
+    </p>
   </div>
 <% end %>
 

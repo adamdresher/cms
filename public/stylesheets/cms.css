@@ -17,3 +17,6 @@ textarea {
   display: inline-block;
 } */
 
+.user_status {
+  font-style: italic;
+}

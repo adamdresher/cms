@@ -4,6 +4,7 @@ require 'tilt/erubis'
 require 'redcarpet'
 
 $EXTENSIONS = ['.txt', '.md']
+
 configure do
   enable :sessions
   set :session_secret, 'secret'
@@ -113,11 +114,10 @@ get '/users/signin' do
 end
 
 post '/users/signin' do
-  username = params[:username]
+  session[:user] = params[:username]
   password = params[:password]
-  session[:user] = username
 
-  if username == 'admin' && password == 'secret'
+  if session[:user] == 'admin' && password == 'secret'
     session[:message] = 'Welcome!'
     redirect '/'
   else
@@ -132,12 +132,3 @@ post '/users/signout' do
   session[:message] = 'You have signed out.'
   redirect '/users/signin'
 end
-
-# not_found do
-#   redirect '/'
-# end
-
-# error 422 do
-#   # '422 boom!'
-#   redirect '/'
-# end
