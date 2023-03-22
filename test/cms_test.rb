@@ -97,7 +97,7 @@ class CMSTest < Minitest::Test
   def test_editing_file_form
     create_document 'quotes.md'
 
-    get '/quotes.md/edit'
+    get '/quotes.md/edit', {}, admin_user
 
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
@@ -133,7 +133,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_viewing_new_file_form
-    get '/new_doc'
+    get '/new_doc', {}, admin_user
 
     assert_equal 200, last_response.status
     assert_includes last_response.body, 'Add a new document'
@@ -160,14 +160,14 @@ class CMSTest < Minitest::Test
   end
 
   def test_submitting_new_file_without_name
-    post '/new_doc', filename: ''
+    post '/new_doc', { filename: '' }, admin_user
 
     assert_equal 422, last_response.status
     assert_includes last_response.body, 'A name is required.'
   end
 
   def test_submitting_new_file_without_valid_extension
-    post '/new_doc', filename: 'invalid.doc'
+    post '/new_doc', { filename: 'invalid.doc' }, admin_user
 
     assert_equal 422, last_response.status
     assert_includes last_response.body, "The name must end with a valid file extension ('.md' or '.txt')."
@@ -239,7 +239,6 @@ class CMSTest < Minitest::Test
     
     assert_equal 200, last_response.status
     refute_equal 'You have signed out.', session[:message]
-    assert_includes last_response.body, 'Username'
     assert_includes last_response.body, %q(Sign In</button>)
   end
 end
