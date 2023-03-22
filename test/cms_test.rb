@@ -35,7 +35,7 @@ class CMSTest < Minitest::Test
     last_request.env['rack.session']
   end
 
-  def admin_user
+  def admin_session
     { 'rack.session' => { user: 'admin' } }
   end
 
@@ -43,7 +43,7 @@ class CMSTest < Minitest::Test
     create_document 'about.txt'
     create_document 'quotes.md'
 
-    get '/', {}, admin_user
+    get '/', {}, admin_session
 
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
@@ -74,7 +74,7 @@ class CMSTest < Minitest::Test
   def test_viewing_nonexistent_file
     create_document 'about.txt'
 
-    get '/nonexistent_file.txt', {}, admin_user
+    get '/nonexistent_file.txt', {}, admin_session
 
     refute_path_exists File.join(data_path, 'nonexistent_file.txt')
     assert_equal 302, last_response.status
@@ -97,7 +97,7 @@ class CMSTest < Minitest::Test
   def test_editing_file_form
     create_document 'quotes.md'
 
-    get '/quotes.md/edit', {}, admin_user
+    get '/quotes.md/edit', {}, admin_session
 
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
@@ -109,7 +109,7 @@ class CMSTest < Minitest::Test
     create_document 'quotes.md'
     create_document 'about.txt'
 
-    post '/quotes.md/edit', { edited_content: 'new content' }, admin_user
+    post '/quotes.md/edit', { edited_content: 'new content' }, admin_session
 
     assert_equal 302, last_response.status
     assert_equal 'quotes.md has been updated.', session[:message]
@@ -133,7 +133,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_viewing_new_file_form
-    get '/new_doc', {}, admin_user
+    get '/new_doc', {}, admin_session
 
     assert_equal 200, last_response.status
     assert_includes last_response.body, 'Add a new document'
@@ -142,7 +142,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_submiting_new_file
-    post '/new_doc', { filename: 'new_file.txt' }, admin_user
+    post '/new_doc', { filename: 'new_file.txt' }, admin_session
 
     assert_equal 302, last_response.status
     assert_equal 'new_file.txt was created.', session[:message]
@@ -160,14 +160,14 @@ class CMSTest < Minitest::Test
   end
 
   def test_submitting_new_file_without_name
-    post '/new_doc', { filename: '' }, admin_user
+    post '/new_doc', { filename: '' }, admin_session
 
     assert_equal 422, last_response.status
     assert_includes last_response.body, 'A name is required.'
   end
 
   def test_submitting_new_file_without_valid_extension
-    post '/new_doc', { filename: 'invalid.doc' }, admin_user
+    post '/new_doc', { filename: 'invalid.doc' }, admin_session
 
     assert_equal 422, last_response.status
     assert_includes last_response.body, "The name must end with a valid file extension ('.md' or '.txt')."
@@ -176,7 +176,7 @@ class CMSTest < Minitest::Test
   def test_deleting_file
     create_document 'temp.txt'
 
-    post '/temp.txt/delete', {}, admin_user
+    post '/temp.txt/delete', {}, admin_session
 
     assert_equal 302, last_response.status
     assert_equal 'temp.txt has been deleted.', session[:message]
@@ -201,7 +201,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_sign_in_valid
-    post '/users/signin', username: 'admin', password: 'secret'
+    post '/users/signin', { username: 'admin', password: 'secret' }
 
     assert_equal 302, last_response.status
     assert_equal 'Welcome!', session[:message]
@@ -216,7 +216,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_sign_in_invalid
-    post '/users/signin', username: 'admin', password: 'incorrect'
+    post '/users/signin', { username: 'admin', password: 'incorrect' }
 
     assert_equal 422, last_response.status
     assert_equal 'admin', session[:user]
@@ -226,7 +226,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_sign_out
-    get '/', {}, admin_user
+    get '/', {}, admin_session
 
     assert_equal 'admin', session[:user]
 
