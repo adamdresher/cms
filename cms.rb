@@ -2,6 +2,7 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'tilt/erubis'
 require 'redcarpet'
+require 'yaml'
 
 $EXTENSIONS = ['.txt', '.md']
 
@@ -36,6 +37,17 @@ def load_file_content(file_path)
     headers['Content-Type'] = 'text/plain'
     File.read(file_path)
   end
+end
+
+def load_credentials
+  path =
+    if ENV['RACK_ENV'] == 'test'
+      File.expand_path('../test', __FILE__)
+    else
+      File.expand_path('../public', __FILE__)
+    end
+
+  YAML.load_file(File.join(path, 'user_db.yml'))
 end
 
 def invalid_user?
@@ -115,6 +127,7 @@ end
 
 post '/:filename/delete' do
   permission_denied if invalid_user?
+  # permission_denied unless user_exists?
 
   filename = params[:filename]
   File.delete(File.join(data_path, filename))
@@ -130,8 +143,9 @@ end
 post '/users/signin' do
   session[:user] = params[:username]
   password = params[:password]
+  credentials = load_credentials
 
-  if session[:user] == 'admin' && password == 'secret'
+  if credentials.key?(session[:user]) && credentials[session[:user]] == password
     session[:message] = 'Welcome!'
     redirect '/'
   else
