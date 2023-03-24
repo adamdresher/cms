@@ -17,8 +17,6 @@ class CMSTest < Minitest::Test
 
   def setup
     FileUtils.mkdir_p(data_path)
-
-    # post '/users/signin', username: 'admin', password: 'secret'
   end
 
   def teardown
