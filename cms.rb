@@ -79,13 +79,11 @@ get '/' do
 end
 
 get '/new_doc' do
-  # permission_denied if invalid_user?
   permission_denied unless user_exists?
   erb :new_doc
 end
 
 post '/new_doc' do
-  # permission_denied if invalid_user?
   permission_denied unless user_exists?
 
   filename = params[:filename]
@@ -117,7 +115,6 @@ get '/:filename' do
 end
 
 get '/:filename/edit' do
-  # permission_denied if invalid_user?
   permission_denied unless user_exists?
 
   @filename = params[:filename]
@@ -128,7 +125,6 @@ get '/:filename/edit' do
 end
 
 post '/:filename/edit' do
-  # permission_denied if invalid_user?
   permission_denied unless user_exists?
 
   filename = params[:filename]
@@ -142,7 +138,6 @@ post '/:filename/edit' do
 end
 
 post '/:filename/delete' do
-  # permission_denied if invalid_user?
   permission_denied unless user_exists?
 
   filename = params[:filename]
@@ -158,10 +153,6 @@ end
 
 post '/users/signin' do
   session[:user] = params[:username]
-  # password = params[:password]
-  # credentials = load_credentials
-
-  # if credentials.key?(session[:user]) && credentials[session[:user]] == password
   if valid_credentials?(session[:user], params[:password])
     session[:message] = 'Welcome!'
     redirect '/'
