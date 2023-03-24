@@ -1,3 +1,3 @@
 (
-admin: secret
+admin: "$2a$12$4ZykXKXRjdnnXVP2EKvY4.2lwSZCghLSzEnUxCRHooRk8pIk7cRlW" # secret
 )

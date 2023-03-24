@@ -1,5 +1,5 @@
 {
-  admin: secret,
-  Anna: bellissima,
-  adam: monkey
+  admin: "$2a$12$Ucsa8m3uZTNR.MukaS0tk.H45YE8gy1Z01qV/EvaqlQE9oWGHrcRy", # secret
+  Anna: "$2a$12$xsRaRsROb38q2gOJAZY3x.5XmnQNlFmi92IGR58ff5qMsRxpDg6xm", # bellissima
+  Adam: "$2a$12$kSSmeCgIopSqZzAGYZ7hrO4d5LcCDFAaBBN5yZ6y/pakzOu5Yd4Wi" # monkey
 }

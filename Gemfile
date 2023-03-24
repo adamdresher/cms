@@ -8,5 +8,6 @@ gem 'sinatra-contrib'
 gem 'minitest'
 gem 'rack-test'
 gem 'redcarpet'
+gem 'bcrypt'
 
 ruby '2.7.6'

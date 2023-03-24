@@ -3,6 +3,7 @@ require 'sinatra/reloader'
 require 'tilt/erubis'
 require 'redcarpet'
 require 'yaml'
+require 'bcrypt'
 
 $EXTENSIONS = ['.txt', '.md']
 
@@ -50,8 +51,19 @@ def load_credentials
   YAML.load_file(File.join(path, 'user_db.yml'))
 end
 
-def invalid_user?
-  session[:user] != 'admin'
+def valid_credentials?(username, password)
+  credentials = load_credentials
+  
+  if credentials.key? username
+    hash = BCrypt::Password.new(credentials[username])
+    hash == password
+  else
+    false
+  end
+end
+
+def user_exists?
+  session[:user]
 end
 
 def permission_denied
@@ -67,12 +79,14 @@ get '/' do
 end
 
 get '/new_doc' do
-  permission_denied if invalid_user?
+  # permission_denied if invalid_user?
+  permission_denied unless user_exists?
   erb :new_doc
 end
 
 post '/new_doc' do
-  permission_denied if invalid_user?
+  # permission_denied if invalid_user?
+  permission_denied unless user_exists?
 
   filename = params[:filename]
 
@@ -103,7 +117,8 @@ get '/:filename' do
 end
 
 get '/:filename/edit' do
-  permission_denied if invalid_user?
+  # permission_denied if invalid_user?
+  permission_denied unless user_exists?
 
   @filename = params[:filename]
   @file_path = File.join(data_path, @filename)
@@ -113,7 +128,8 @@ get '/:filename/edit' do
 end
 
 post '/:filename/edit' do
-  permission_denied if invalid_user?
+  # permission_denied if invalid_user?
+  permission_denied unless user_exists?
 
   filename = params[:filename]
   file_path = File.join(data_path, filename)
@@ -126,8 +142,8 @@ post '/:filename/edit' do
 end
 
 post '/:filename/delete' do
-  permission_denied if invalid_user?
-  # permission_denied unless user_exists?
+  # permission_denied if invalid_user?
+  permission_denied unless user_exists?
 
   filename = params[:filename]
   File.delete(File.join(data_path, filename))
@@ -142,10 +158,11 @@ end
 
 post '/users/signin' do
   session[:user] = params[:username]
-  password = params[:password]
-  credentials = load_credentials
+  # password = params[:password]
+  # credentials = load_credentials
 
-  if credentials.key?(session[:user]) && credentials[session[:user]] == password
+  # if credentials.key?(session[:user]) && credentials[session[:user]] == password
+  if valid_credentials?(session[:user], params[:password])
     session[:message] = 'Welcome!'
     redirect '/'
   else
