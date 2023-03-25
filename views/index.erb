@@ -6,10 +6,15 @@
   </form>
 
   <ul>
-    <% @files.each do |file| %>
+    <% @files.sort.each do |file| %>
       <li>
-        <a href="<%= file %>" ><%= file %></a> - 
-        <a href="/<%= file %>/edit">edit</a> - 
+        <a href="<%= file %>"><%= file %></a> - 
+        <form style="display: inline" action="/<%= file %>/edit" method="get">
+          <button type="submit">edit</button>
+        </form>
+        <form style="display: inline" action="/<%= file %>/duplicate" method="post">
+          <button type="submit">duplicate</button>
+        </form>
         <form style="display: inline" action="/<%= file %>/delete" method="post">
           <button type="submit">delete</button>
         </form>

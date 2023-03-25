@@ -147,6 +147,30 @@ post '/:filename/delete' do
   redirect '/'
 end
 
+post '/:filename/duplicate' do
+  permission_denied unless user_exists?
+
+  files = Dir['*', base: data_path]
+  filename = params[:filename]
+  file_path = File.join(data_path, filename)
+  contents = File.read(file_path)
+
+  dup_filename = filename.sub('.', '_copy.')
+  num = 1 # skips adding a number to first copy
+
+  while files.include? dup_filename
+    num += 1
+    dup_filename = filename.sub('.', "_copy#{num}.")
+  end
+
+  dup_file_path = File.join(data_path, dup_filename)
+  File.new(dup_file_path, 'w')
+  File.write(dup_file_path, contents)
+
+  session[:message] = "#{dup_filename} was created."
+  redirect '/'
+end
+
 get '/users/signin' do
   erb :signin
 end
