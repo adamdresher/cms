@@ -1,7 +1,7 @@
 <form id="signin" action="/users/signin" method="post">
   <div>
     <label for="username"> Username: 
-      <input name="username" type="text" value="<%= session[:user] %>">
+      <input name="username" type="text" value="<%= session[:potential_user] %>">
     </label>
   </div>
   <div>
@@ -11,4 +11,7 @@
   </div>
 
   <button form="signin">Sign In</button>
+  <button form="cancel">Cancel</button>
 </form>
+
+<form id="cancel" action="/" method="get"></form>

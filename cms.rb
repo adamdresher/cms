@@ -40,7 +40,7 @@ def load_file_content(file_path)
   end
 end
 
-def load_credentials
+def credentials_path
   path =
     if ENV['RACK_ENV'] == 'test'
       File.expand_path('../test', __FILE__)
@@ -48,7 +48,11 @@ def load_credentials
       File.expand_path('../public', __FILE__)
     end
 
-  YAML.load_file(File.join(path, 'user_db.yml'))
+  File.join(path, 'user_db.yml')
+end
+
+def load_credentials
+  YAML.load_file(credentials_path)
 end
 
 def valid_credentials?(username, password)
@@ -177,12 +181,15 @@ post '/:filename/duplicate' do
 end
 
 get '/users/signin' do
+  session.delete(:potential_user) # start fresh
   erb :signin
 end
 
 post '/users/signin' do
-  session[:user] = params[:username]
-  if valid_credentials?(session[:user], params[:password])
+  session[:potential_user] = params[:username]
+
+  if valid_credentials?(session[:potential_user], params[:password])
+    session[:user] = session[:potential_user]
     session[:message] = 'Welcome!'
     redirect '/'
   else
@@ -199,6 +206,7 @@ post '/users/signout' do
 end
 
 get '/users/new' do
+  session.delete(:new_user) # start fresh
   erb :new_user
 end
 
@@ -218,7 +226,7 @@ post '/users/new' do
     session[:message] = "Your passwords did not match.  Please try again."
   else
     user = session.delete(:new_user)
-    user_db_path = File.join(File.expand_path('../public', __FILE__), 'user_db.yml') 
+    user_db_path = credentials_path
     hashed_password = BCrypt::Password.create(password1)
 
     user_db = File.open(user_db_path, mode: 'a')
