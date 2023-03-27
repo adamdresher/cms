@@ -11,6 +11,7 @@ configure do
   enable :sessions
   set :session_secret, 'secret'
   set :show_exceptions, :after_handler
+  set :erb, :escape_html => true
 end
 
 def data_path
@@ -21,32 +22,33 @@ def data_path
   end
 end
 
-def render_md(file_path)
-  @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
-  @markdown.render(File.read(file_path))
-end
-
 def file_extension_exists?(filename)
   $EXTENSIONS.any? { |ext| File.extname(filename) == ext }
 end
 
 def load_file_content(file_path)
+  content = File.read(file_path)
+
   case File.extname(file_path)
   when '.md'
-    erb render_md(file_path)
+    erb render_md(content)
   when '.txt'
     headers['Content-Type'] = 'text/plain'
-    File.read(file_path)
+    content
   end
 end
 
+def render_md(content)
+  @markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
+  @markdown.render(content)
+end
+
 def credentials_path
-  path =
-    if ENV['RACK_ENV'] == 'test'
-      File.expand_path('../test', __FILE__)
-    else
-      File.expand_path('../public', __FILE__)
-    end
+  path = if ENV['RACK_ENV'] == 'test'
+           File.expand_path('../public/test', __FILE__)
+         else
+           File.expand_path('../public', __FILE__)
+         end
 
   File.join(path, 'user_db.yml')
 end
@@ -78,6 +80,15 @@ end
 def user_exists?(user)
   credentials = load_credentials
   credentials[user]
+end
+
+def add_new_user!(user, password)
+  user_db_path = credentials_path
+  new_user = "#{user}: #{BCrypt::Password.create(password)}\n"
+
+  user_db = File.open(user_db_path, mode: 'a')
+  user_db.write(new_user)
+  user_db.close
 end
 
 get '/' do
@@ -213,26 +224,18 @@ end
 post '/users/new' do
   user = params[:new_user].strip
   session[:new_user] = user
-  password1 = params[:new_password1]
-  password2 = params[:new_password2]
+  password = [params[:new_password1], params[:new_password2]]
 
   if user_exists?(user)
     session[:message] = "'#{user}' is taken, try something different."
   elsif user.strip.empty?
     session[:message] = "Please enter a username."
-  elsif password1.strip.empty? && password2.strip.empty?
+  elsif password.all? { |word| word.strip.empty? }
     session[:message] = "Please enter a password."
-  elsif password1 != password2
+  elsif password.first != password.last
     session[:message] = "Your passwords did not match.  Please try again."
   else
-    user = session.delete(:new_user)
-    user_db_path = credentials_path
-    hashed_password = BCrypt::Password.create(password1)
-
-    user_db = File.open(user_db_path, mode: 'a')
-    user_db.write("#{user}: #{hashed_password}\n")
-    user_db.close
-
+    add_new_user!(session.delete(:new_user), password.first)
     session[:message] = "Your account has been created."
     redirect '/'
   end

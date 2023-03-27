@@ -224,7 +224,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_sign_in_valid
-    post '/users/signin', { username: 'admin', password: 'secret' }
+    post '/users/signin', username: 'admin', password: 'secret'
 
     assert_equal 302, last_response.status
     assert_equal 'Welcome!', session[:message]
@@ -239,10 +239,11 @@ class CMSTest < Minitest::Test
   end
 
   def test_sign_in_invalid
-    post '/users/signin', { username: 'admin', password: 'incorrect' }
+    post '/users/signin', username: 'admin', password: 'incorrect'
 
     assert_equal 422, last_response.status
-    assert_equal 'admin', session[:user]
+    assert_equal 'admin', session[:potential_user]
+    refute_equal 'admin', session[:user]
     assert_includes last_response.body, 'Invalid credentials.'
     assert_includes last_response.body, 'Username'
     assert_includes last_response.body, %q(Sign In</button>)
