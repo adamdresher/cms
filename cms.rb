@@ -62,13 +62,18 @@ def valid_credentials?(username, password)
   end
 end
 
-def user_exists?
+def signed_in?
   session[:user]
 end
 
 def permission_denied
   session[:message] = "You must be signed in to do that."
   redirect '/'
+end
+
+def user_exists?(user)
+  credentials = load_credentials
+  credentials[user]
 end
 
 get '/' do
@@ -79,12 +84,12 @@ get '/' do
 end
 
 get '/new_doc' do
-  permission_denied unless user_exists?
+  permission_denied unless signed_in?
   erb :new_doc
 end
 
 post '/new_doc' do
-  permission_denied unless user_exists?
+  permission_denied unless signed_in?
 
   filename = params[:filename]
 
@@ -115,7 +120,7 @@ get '/:filename' do
 end
 
 get '/:filename/edit' do
-  permission_denied unless user_exists?
+  permission_denied unless signed_in?
 
   @filename = params[:filename]
   @file_path = File.join(data_path, @filename)
@@ -125,7 +130,7 @@ get '/:filename/edit' do
 end
 
 post '/:filename/edit' do
-  permission_denied unless user_exists?
+  permission_denied unless signed_in?
 
   filename = params[:filename]
   file_path = File.join(data_path, filename)
@@ -138,7 +143,7 @@ post '/:filename/edit' do
 end
 
 post '/:filename/delete' do
-  permission_denied unless user_exists?
+  permission_denied unless signed_in?
 
   filename = params[:filename]
   File.delete(File.join(data_path, filename))
@@ -148,7 +153,7 @@ post '/:filename/delete' do
 end
 
 post '/:filename/duplicate' do
-  permission_denied unless user_exists?
+  permission_denied unless signed_in?
 
   files = Dir['*', base: data_path]
   filename = params[:filename]
@@ -191,4 +196,38 @@ post '/users/signout' do
   session.delete(:user)
   session[:message] = 'You have signed out.'
   redirect '/'
+end
+
+get '/users/new' do
+  erb :new_user
+end
+
+post '/users/new' do
+  user = params[:new_user].strip
+  session[:new_user] = user
+  password1 = params[:new_password1]
+  password2 = params[:new_password2]
+
+  if user_exists?(user)
+    session[:message] = "'#{user}' is taken, try something different."
+  elsif user.strip.empty?
+    session[:message] = "Please enter a username."
+  elsif password1.strip.empty? && password2.strip.empty?
+    session[:message] = "Please enter a password."
+  elsif password1 != password2
+    session[:message] = "Your passwords did not match.  Please try again."
+  else
+    user = session.delete(:new_user)
+    user_db_path = File.join(File.expand_path('../public', __FILE__), 'user_db.yml') 
+    hashed_password = BCrypt::Password.create(password1)
+
+    user_db = File.open(user_db_path, mode: 'a')
+    user_db.write("#{user}: #{hashed_password}\n")
+    user_db.close
+
+    session[:message] = "Your account has been created."
+    redirect '/'
+  end
+
+  erb :new_user
 end

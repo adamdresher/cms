@@ -1,0 +1,21 @@
+<form id="new_user" action="/users/new" method="post">
+  <div>
+    <label for="new_user"> Username: 
+      <input name="new_user" type="text" value="<%= session[:new_user] %>">
+    </label>
+  </div>
+  <div>
+    <label for="new_password1"> Password: 
+      <input name="new_password1" type="text">
+    </label>
+  </div>
+  <div>
+    <label for="new_password2"> Repeat Password:
+      <input name="new_password2" type="text">
+    </label>
+  </div>
+
+  <button form="new_user">Create Account</button>
+  <button form="cancel">Cancel</button>
+</form>
+<form id="cancel" action="/" method="get"></form>
